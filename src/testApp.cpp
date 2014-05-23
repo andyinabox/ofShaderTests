@@ -21,7 +21,9 @@ void testApp::setup(){
     camera.setVerbose(false);
 	camera.initGrabber(camWidth, camHeight);
 
-    fbo.allocate(camWidth, camHeight);
+    // fbo.allocate(camWidth, camHeight);
+    plane.set(800, 600, 30, 30);
+    plane.mapTexCoords(0, 0, camWidth, camHeight);
 }
 
 //--------------------------------------------------------------
@@ -32,17 +34,46 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     ofClear(0, 0, 0,255);
+
+    float cx = ofGetWidth() / 2.0;
+    float cy = ofGetHeight() / 2.0;
+
+    ofDrawBitmapString(ofToString(ofGetFrameRate()), -(cx/2.0), -(cy/2.0));   
+
+
+    float percentX = mouseX / (float)ofGetWidth();
+    percentX = ofClamp(percentX, 0, 1);
+    float percentY = mouseY / (float)ofGetHeight();
+    percentY = ofClamp(percentY, 0, 1);
+
+
     
     // fbo.begin();
     shader.begin();
-    // shader.setUniformTexture("tex0", camera.getTextureReference(), 1);
-    camera.draw(0,0);
+    shader.setUniformTexture("tex0", camera.getTextureReference(), 1);
+    shader.setUniform1f("time", ofGetElapsedTimef());
+    shader.setUniform1f("percentX", percentX);
+    shader.setUniform1f("percentY", percentY);
+
+
+    // camera.draw(0,0);
+
+    ofTranslate(cx, cy);    
+    ofColor(255, 255, 255);
+
+    // the mouse/touch Y position changes the rotation of the plane.
+    // float rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
+    // ofRotate(rotation, 1, 0, 0);
+
+    plane.draw();
+
     shader.end();
     // fbo.end();
 
     // fbo.draw(0,0);
+ 
 
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), 20, 20);   
+
 
 }
 

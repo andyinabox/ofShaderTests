@@ -22,5 +22,7 @@ class testApp : public ofBaseApp{
 		ofShader shader;
 	    ofFbo fbo;
     	ofVideoGrabber camera;
+	    ofPlanePrimitive plane;
+
 
 };
