@@ -1,0 +1,8 @@
+{
+	"camWidth" : 640,
+	"camHeight" : 480,
+	"shaders" : [
+		"wavy"
+		, "fisheye"
+	]
+}

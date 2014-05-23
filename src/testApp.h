@@ -1,17 +1,14 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxJSONElement.h"
 
-class testApp : public ofBaseApp{
+class testApp : public ofBaseApp {
 
 	public:
 		void setup();
 		void update();
 		void draw();
-
-		// preset callbacks
-		void defaultPreset();
-
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -22,6 +19,9 @@ class testApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+	    ofxJSONElement config;
+	    bool configLoaded;
 	
 		ofShader shader;
 	    ofFbo fbo;
@@ -29,5 +29,9 @@ class testApp : public ofBaseApp{
 	    ofPlanePrimitive plane;
 	    int preset;
 	    bool isFullScreen;
+
+		// preset callbacks
+		void defaultPreset();
+		void loadShader(int n);
 
 };

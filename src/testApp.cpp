@@ -1,38 +1,38 @@
 #include "testApp.h"
 
-// names of our shaders in
-// the shaders dir (sans extension)
-// they will be referenced by array index
-// @todo load from config file?
-string shaders[] = {
-	"wavy"
-	, "fisheye"
-};
 
 //--------------------------------------------------------------
 void testApp::setup(){
 
-	// start not in full screen mode
-	isFullScreen = 0;
+	configLoaded = config.open("config.json");
 
-	// start at first preset
-	preset = 0;
+	if(configLoaded) {
+		cout << "config.json loaded:" << endl;
+		cout << config.getRawString() << endl;
 
-	// load the shader
-	shader.load("shaders/"+shaders[preset]);
+		// start not in full screen mode
+		isFullScreen = false;
 
-	// take er easy
-	ofSetFrameRate(24);
-    
-    // setup the camera
-    int camWidth = 640;
-	int camHeight = 480;
-    camera.setVerbose(false);
-	camera.initGrabber(camWidth, camHeight);
+		// load the shader
+		loadShader(0);
 
-    // setup the plane
-    plane.set(ofGetWidth(), ofGetHeight(), 30, 30);
-    plane.mapTexCoords(0, 0, camWidth, camHeight);
+		// take er easy
+		ofSetFrameRate(24);
+	    
+	    // setup the camera
+	    int camWidth = config["camWidth"].asInt();
+		int camHeight = config["camHeight"].asInt();
+	    camera.setVerbose(false);
+		camera.initGrabber(camWidth, camHeight);
+
+	    // setup the plane
+	    plane.set(ofGetWidth(), ofGetHeight(), 30, 30);
+	    plane.mapTexCoords(0, 0, camWidth, camHeight);
+
+	} else {
+		// throw an error if loading fails
+		throw std::runtime_error( "Failed to load config file" );
+	}
 }
 
 //--------------------------------------------------------------
@@ -54,7 +54,7 @@ void testApp::draw(){
 
 void testApp::defaultPreset() {
 	// clean slate
-    ofClear(0, 0, 0,255);
+    ofClear(0, 0, 0, 255);
 
     // establish our center
     float cx = ofGetWidth() / 2.0;
@@ -91,9 +91,17 @@ void testApp::defaultPreset() {
 
 }
 
+void testApp::loadShader(int n) {
+	// only take numbers that we have
+	// shaders for
+	if(n >= 0 && n < config["shaders"].size()) {
+		preset = n;
+		shader.load("shaders/"+config["shaders"][n].asString());
+	}	
+}
+
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
-
 	if (key == 32) {
         ofLog() << "toggling fullscreen mode";
         isFullScreen = !isFullScreen;
@@ -107,13 +115,8 @@ void testApp::keyPressed(int key){
 		// number keys translate to
 		// correct int
 		int n = key - 48;
+		loadShader(n);
 
-		// only take numbers that we have
-		// shaders for
-		if(n >= 0 && n < sizeof(shaders)) {
-			preset = n;
-			shader.load("shaders/"+shaders[preset]);
-		}
 	}
 }
 
