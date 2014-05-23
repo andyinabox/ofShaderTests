@@ -20,9 +20,9 @@ void main()
     float displacementX = sin((time + (position.y / 200))*percentY) * displacementHeight;
 
     vec4 modifiedPosition = position;
-	modifiedPosition.y += displacementY;
-	modifiedPosition.x += displacementX;
-	gl_Position = modifiedPosition;
+    modifiedPosition.y += displacementY;
+    modifiedPosition.x += displacementX;
+    gl_Position = modifiedPosition;
 
     texCoordVarying = gl_MultiTexCoord0.xy;
 }

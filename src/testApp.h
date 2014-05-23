@@ -9,6 +9,10 @@ class testApp : public ofBaseApp{
 		void update();
 		void draw();
 
+		// preset callbacks
+		void defaultPreset();
+
+
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -23,6 +27,7 @@ class testApp : public ofBaseApp{
 	    ofFbo fbo;
     	ofVideoGrabber camera;
 	    ofPlanePrimitive plane;
-
+	    int preset;
+	    bool isFullScreen;
 
 };

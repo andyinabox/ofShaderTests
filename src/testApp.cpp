@@ -1,28 +1,37 @@
 #include "testApp.h"
 
+// names of our shaders in
+// the shaders dir (sans extension)
+// they will be referenced by array index
+// @todo load from config file?
+string shaders[] = {
+	"wavy"
+	, "fisheye"
+};
+
 //--------------------------------------------------------------
 void testApp::setup(){
-// #ifdef TARGET_OPENGLES
-// 	shader.load("shadersES2/shader");
-// #else
-// 	if(ofIsGLProgrammableRenderer()){
-	// 	shader.load("shadersGL3/shader");
-	// }else{
-		shader.load("shadersGL2/shader");
-// 	}
-// #endif
-// 
 
-	ofSetFrameRate(30);
+	// start not in full screen mode
+	isFullScreen = 0;
+
+	// start at first preset
+	preset = 0;
+
+	// load the shader
+	shader.load("shaders/"+shaders[preset]);
+
+	// take er easy
+	ofSetFrameRate(24);
     
-    int camWidth = 320;
-	int camHeight = 240;
-
+    // setup the camera
+    int camWidth = 640;
+	int camHeight = 480;
     camera.setVerbose(false);
 	camera.initGrabber(camWidth, camHeight);
 
-    // fbo.allocate(camWidth, camHeight);
-    plane.set(800, 600, 30, 30);
+    // setup the plane
+    plane.set(ofGetWidth(), ofGetHeight(), 30, 30);
     plane.mapTexCoords(0, 0, camWidth, camHeight);
 }
 
@@ -33,53 +42,79 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
+
+	// this allows us to set up different
+	// methods for different presets
+	switch(preset) {
+		default:
+			defaultPreset();
+			break;
+	}
+}
+
+void testApp::defaultPreset() {
+	// clean slate
     ofClear(0, 0, 0,255);
 
+    // establish our center
     float cx = ofGetWidth() / 2.0;
     float cy = ofGetHeight() / 2.0;
 
+    // draw fps
+    ofColor(255, 255, 255);
     ofDrawBitmapString(ofToString(ofGetFrameRate()), -(cx/2.0), -(cy/2.0));   
 
-
+    // translate mouse positions to value from 0 to 1
     float percentX = mouseX / (float)ofGetWidth();
     percentX = ofClamp(percentX, 0, 1);
     float percentY = mouseY / (float)ofGetHeight();
     percentY = ofClamp(percentY, 0, 1);
 
-
-    
-    // fbo.begin();
+    // go shader go!
     shader.begin();
-    shader.setUniformTexture("tex0", camera.getTextureReference(), 1);
-    shader.setUniform1f("time", ofGetElapsedTimef());
-    shader.setUniform1f("percentX", percentX);
-    shader.setUniform1f("percentY", percentY);
+    	// adding the camera input as a texture
+	    shader.setUniformTexture("tex0", camera.getTextureReference(), 1);
+	    // our clock
+	    shader.setUniform1f("time", ofGetElapsedTimef());
 
+	    // pass in mouse position
+	    shader.setUniform1f("percentX", percentX);
+	    shader.setUniform1f("percentY", percentY);
 
-    // camera.draw(0,0);
+	    // center the gl coordinates
+	    ofTranslate(cx, cy);    
 
-    ofTranslate(cx, cy);    
-    ofColor(255, 255, 255);
-
-    // the mouse/touch Y position changes the rotation of the plane.
-    // float rotation = ofMap(percentY, 0, 1, -60, 60, true) + 60;
-    // ofRotate(rotation, 1, 0, 0);
-
-    plane.draw();
+	    // draw our canvas
+	    plane.draw();
 
     shader.end();
-    // fbo.end();
-
-    // fbo.draw(0,0);
- 
-
-
 
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
 
+	if (key == 32) {
+        ofLog() << "toggling fullscreen mode";
+        isFullScreen = !isFullScreen;
+        ofSetFullscreen(isFullScreen);
+        plane.setWidth(ofGetWidth());
+        plane.setHeight(ofGetWidth());
+
+	} else if (47 < key && key < 58) {
+
+		// offsetting so that the
+		// number keys translate to
+		// correct int
+		int n = key - 48;
+
+		// only take numbers that we have
+		// shaders for
+		if(n >= 0 && n < sizeof(shaders)) {
+			preset = n;
+			shader.load("shaders/"+shaders[preset]);
+		}
+	}
 }
 
 //--------------------------------------------------------------
